@@ -1,4 +1,4 @@
-package com.example.chatserver.domain.message;
+package com.example.chatserver.domain.chat;
 
 
 import com.example.chatserver.domain.base.AuditingEntity;

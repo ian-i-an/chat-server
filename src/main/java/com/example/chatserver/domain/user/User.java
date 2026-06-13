@@ -10,24 +10,24 @@ import static java.util.Objects.requireNonNull;
 
 @Getter
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends SoftDeletableEntity {
 
     @Column(nullable = false)
     private String nickname;
 
+    @Column(nullable = false,  unique = true)
+    private String loginId;
+
     @Column(nullable = false)
     private String passwordHash;
 
-    public static User create(String nickname, String passwordHash) {
+    public static User create(String nickname, String loginId, String passwordHash) {
         User user = new User();
-
-        requireNonNull(nickname);
-        requireNonNull(passwordHash);
-
-        user.nickname = nickname;
-        user.passwordHash = passwordHash;
+        user.nickname = requireNonNull(nickname);;
+        user.loginId =  requireNonNull(loginId);;
+        user.passwordHash =  requireNonNull(passwordHash);;
         return user;
     }
 
