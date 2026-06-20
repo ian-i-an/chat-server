@@ -1,4 +1,4 @@
-package com.example.chatserver.global;
+package com.example.chatserver.global.config;
 
 import com.example.chatserver.global.security.CustomAuthenticationEntryPoint;
 import com.example.chatserver.global.security.JwtAuthenticationFilter;
@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,6 +30,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) {
         http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers
                         .frameOptions(frameOptions -> frameOptions.sameOrigin())
@@ -36,6 +39,10 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/chat-rooms", "/api/auth/me").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh",
+                                "/api/auth/sign-in",
+                                "/api/auth/sign-up").permitAll()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(exception -> exception

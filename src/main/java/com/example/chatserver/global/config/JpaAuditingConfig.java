@@ -1,4 +1,4 @@
-package com.example.chatserver.global;
+package com.example.chatserver.global.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

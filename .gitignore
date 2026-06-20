@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# QueryDSL QClass 생성 경로 무시
+src/main/generated/

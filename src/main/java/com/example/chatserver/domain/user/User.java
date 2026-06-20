@@ -1,5 +1,6 @@
 package com.example.chatserver.domain.user;
 
+import com.example.chatserver.domain.base.AuditingEntity;
 import com.example.chatserver.domain.base.SoftDeletableEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,7 +13,7 @@ import static java.util.Objects.requireNonNull;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends SoftDeletableEntity {
+public class User extends AuditingEntity {
 
     @Column(nullable = false)
     private String nickname;
@@ -31,9 +32,10 @@ public class User extends SoftDeletableEntity {
         return user;
     }
 
-
-
     public void changePasswordHash(String passwordHash) {
         this.passwordHash = requireNonNull(passwordHash);
+    }
+    public void changeNickname(String nickname) {
+        this.nickname = requireNonNull(nickname);
     }
 }

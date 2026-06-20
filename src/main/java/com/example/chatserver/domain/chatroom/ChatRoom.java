@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import static java.util.Objects.requireNonNull;
 
@@ -21,6 +23,7 @@ public class ChatRoom extends AuditingEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User owner;
 
     private ChatRoom(String name, User owner) {

@@ -1,8 +1,9 @@
 package com.example.chatserver.domain.chatroom.dto;
 
-public record ChatRoomDto(
+public record ChatRoomListItem(
         Long id,
         String name,
-        Boolean isMyChatRoom
+        String lastMessage,
+        Long unreadCount
 ) {
 }
