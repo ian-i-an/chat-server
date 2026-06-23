@@ -2,7 +2,7 @@ spring:
   application:
     name: chat-server
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
 jwt:
   secret: ${JWT_SECRET:thisiscreatekeyformypesonalprogject1234fortiwtterxxxx333}
