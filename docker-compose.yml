@@ -10,6 +10,8 @@ services:
     image: ghcr.io/ian-i-an/chat-nginx:latest
     container_name: nginx-container
     restart: unless-stopped
+    volumes:
+      - /home/ubuntu/frontend:/usr/share/nginx/html
     ports:
       - "80:80"
     depends_on:
