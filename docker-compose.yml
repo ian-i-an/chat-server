@@ -12,6 +12,7 @@ services:
     restart: unless-stopped
     volumes:
       - /home/ubuntu/frontend:/usr/share/nginx/html
+      - ../certs:/etc/nginx/certs
     ports:
       - "80:80"
     depends_on:
