@@ -62,8 +62,8 @@ jobs:
           script: |
             cd /home/${{ secrets.EC2_USERNAME }}/chat-server
 
-            echo "JWT_ACCESS_TOKEN_EXPIRATION=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION }}" > .env
-            echo "CORS_ALLOWED_ORIGIN=${{ secrets.CORS_ALLOWED_ORIGIN }}" >> .env
+#            echo "JWT_ACCESS_TOKEN_EXPIRATION=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION }}" > .env
+#            echo "CORS_ALLOWED_ORIGIN=${{ secrets.CORS_ALLOWED_ORIGIN }}" >> .env
 
             echo "${{ secrets.EC2_GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
