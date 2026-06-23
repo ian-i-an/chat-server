@@ -1,0 +1,11 @@
+# .dockerignore
+.git
+.gitignore
+.idea
+.vscode
+.DS_Store
+build/classes
+build/resources
+bin/
+out/
+*.log

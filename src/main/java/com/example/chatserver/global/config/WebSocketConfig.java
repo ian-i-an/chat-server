@@ -3,6 +3,7 @@ package com.example.chatserver.global.config;
 import com.example.chatserver.global.websocket.StompHandler;
 import com.example.chatserver.global.websocket.WebSocketHandshakeInterceptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -16,6 +17,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    @Value("${cors.allowed-origin}")
+    private String allowedOrigin;
     private final StompHandler stompHandler;
     private final WebSocketHandshakeInterceptor webSocketHandshakeInterceptor;
 
@@ -38,7 +41,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("http://localhost:5173")
+                .setAllowedOriginPatterns(allowedOrigin)
                 .addInterceptors(webSocketHandshakeInterceptor);
     }
 
