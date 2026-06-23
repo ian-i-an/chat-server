@@ -1,7 +1,6 @@
 services:
   api-server:
-    build:
-      context: .
+    image: ghcr.io/ian-i-an/chat-server:latest
     container_name: spring-container
     restart: unless-stopped
     env_file:

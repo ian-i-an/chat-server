@@ -36,41 +36,40 @@ jobs:
           docker build -t ghcr.io/${{ github.repository_owner }}/chat-server:latest .
           docker push ghcr.io/${{ github.repository_owner }}/chat-server:latest
 
+      - name: Delete old untagged images
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: 'chat-server' # 이미지 이름과 똑같이 맞춰주세요
+          package-type: 'container'
+          min-versions-to-keep: 0 # 남겨둘 구버전 개수 (0이면 태그 없는 건 전부 삭제)
+          delete-only-untagged-versions: 'true' #latest 태그가 있는 건 건드리지 않음!
 
-#          # 6. EC2에 배포용 설계도(docker-compose.yml, nginx 폴더) 전송하기
-#      - name: 6. Copy files to EC2
-#        uses: appleboy/scp-action@v0.1.7
-#        with:
-#          host: ${{ secrets.EC2_HOST }}
-#          username: ${{ secrets.EC2_USERNAME }}
-#          key: ${{ secrets.EC2_SSH_KEY }}
-#          source: "docker-compose.yml,nginx/"
-#          target: "/home/${{ secrets.EC2_USERNAME }}/chat-server" # EC2 안에 만들어질 폴더명
-#
-#          # 7. EC2에 접속해서 최종 실행명령 내리기
-#          - name: 7. SSH to EC2 and Deploy
-#            uses: appleboy/ssh-action@v1.0.3
-#            with:
-#              host: ${{ secrets.EC2_HOST }}
-#              username: ${{ secrets.EC2_USERNAME }}
-#              key: ${{ secrets.EC2_SSH_KEY }}
-#              script: |
-#                cd /home/${{ secrets.EC2_USERNAME }}/chat-server
-#
-#                # A. EC2 안에 .env 파일 실시간 생성 (Secret 값 주입)
-#                echo "JWT_ACCESS_TOKEN_EXPIRATION=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION }}" > .env
-#                echo "CORS_ALLOWED_ORIGIN=${{ secrets.CORS_ALLOWED_ORIGIN }}" >> .env
-#                # 필요한 변수가 더 있다면 여기에 echo "키=${{ secrets.값 }}" >> .env 형태로 계속 추가해 주세요!
-#
-#                # B. EC2에서 GHCR 창고 로그인 (우리가 만든 PAT 입장권 사용!)
-#                echo "${{ secrets.EC2_GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-#
-#                # C. 창고에서 최신 이미지 다운로드
-#                docker pull ghcr.io/${{ github.repository_owner }}/chat-server:latest
-#
-#                # D. 서버 재시작! (새 이미지로 교체됨)
-#                docker-compose down
-#                docker-compose up -d
-#
-#                # E. 찌꺼기 이미지 청소 (용량 확보)
-#                docker image prune -f
+      - name:  Copy files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.yml,nginx/"
+          target: "/home/${{ secrets.EC2_USERNAME }}/chat-server" # EC2 안에 만들어질 폴더명
+
+      - name:  SSH to EC2 and Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.EC2_USERNAME }}/chat-server
+
+            echo "JWT_ACCESS_TOKEN_EXPIRATION=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION }}" > .env
+            echo "CORS_ALLOWED_ORIGIN=${{ secrets.CORS_ALLOWED_ORIGIN }}" >> .env
+
+            echo "${{ secrets.EC2_GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            docker-compose pull
+
+            docker-compose down
+            docker-compose up -d
+            
+            docker image prune -f
