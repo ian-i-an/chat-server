@@ -25,6 +25,7 @@ public class AuthService {
 
     public TokenDto refreshToken(String refreshToken) {
         Long userId = jwtProvider.getUserIdFromToken(refreshToken);
+//        todo: JwtException → 500 에러 처리
 
         String accessToken = jwtProvider.createAccessToken(userId);
         String newRefreshToken = jwtProvider.createRefreshToken(userId);

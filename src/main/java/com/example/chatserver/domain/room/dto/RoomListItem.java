@@ -1,6 +1,6 @@
-package com.example.chatserver.domain.chatroom.dto;
+package com.example.chatserver.domain.room.dto;
 
-public record ChatRoomListItem(
+public record RoomListItem(
         Long id,
         String name,
         String lastMessage,

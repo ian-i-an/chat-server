@@ -7,8 +7,8 @@ import com.example.chatserver.domain.chat.dto.ChatRoomUpdatedEvent;
 import com.example.chatserver.domain.chat.dto.request.ChatCursorCondition;
 import com.example.chatserver.domain.chat.dto.request.ChatSendRequest;
 import com.example.chatserver.domain.chat.repository.ChatRepository;
-import com.example.chatserver.domain.chatroom.ChatRoom;
-import com.example.chatserver.domain.chatroom.repository.ChatRoomRepository;
+import com.example.chatserver.domain.room.Room;
+import com.example.chatserver.domain.room.repository.RoomRepository;
 import com.example.chatserver.domain.readstatus.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,19 +23,22 @@ import java.util.List;
 public class ChatService {
 
     private final ReadStatusService readStatusService;
-    private final ChatRoomRepository chatRoomRepository;
+    private final RoomRepository roomRepository;
     private final ChatRepository chatRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
 
     @Transactional
     public void sendChat(Long chatRoomId, ChatSendRequest chatSendRequest, Long userId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+        if (userId == null) {
+            throw new IllegalArgumentException("userId is null");
+        }
+        Room room = roomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채팅방입니다."));
 
-        Long isOwnerId = chatRoom.getOwner().getId();
+        Long isOwnerId = room.getOwner().getId();
         boolean isOwner = isOwnerId.equals(userId);
-        Chat chat = Chat.create(chatSendRequest.content(), chatRoom, isOwner);
+        Chat chat = Chat.create(chatSendRequest.content(), room, isOwner);
         Chat save = chatRepository.save(chat);
 
         if (isOwner) {

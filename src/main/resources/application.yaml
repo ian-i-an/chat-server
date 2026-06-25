@@ -11,3 +11,7 @@ jwt:
 
 cors:
   allowed-origin: ${CORS_ALLOWED_ORIGIN:http://localhost:5173}
+
+app:
+  cookie:
+    secure: true

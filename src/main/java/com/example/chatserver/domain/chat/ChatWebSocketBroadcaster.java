@@ -17,18 +17,18 @@ public class ChatWebSocketBroadcaster {
     @Async("ChatSendTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendChat(ChatCreatedEvent event) {
-        String destination = "/sub/chat-rooms/" + event.chatRoomId();
+        String destination = "/sub/rooms/" + event.chatRoomId();
         messagingTemplate.convertAndSend(destination, event.chatDto());
     }
 
     @Async("ChatSendTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void updateChatRoomList(ChatRoomUpdatedEvent event) {
-        String destination = "/sub/users/" + event.userId() + "/chat-rooms";
-        messagingTemplate.convertAndSend(destination, new ChatRoomUpdateEvent(event.chatRoomId(), event.lastMessage(), event.isMyMessage()));
+        String destination = "/sub/users/" + event.userId() + "/rooms";
+        messagingTemplate.convertAndSend(destination, new RoomUpdateEvent(event.chatRoomId(), event.lastMessage(), event.isMyMessage()));
     }
 
-    record ChatRoomUpdateEvent(
+    record RoomUpdateEvent(
             Long id,
             String lastMessage,
             boolean isMyMessage

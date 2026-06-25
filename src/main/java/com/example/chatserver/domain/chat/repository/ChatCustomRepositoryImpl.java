@@ -24,7 +24,7 @@ public class ChatCustomRepositoryImpl implements ChatCustomRepository {
                 .select(chat)
                 .from(chat)
                 .where(
-                        chat.chatRoom.id.eq(chatRoomId),
+                        chat.room.id.eq(chatRoomId),
                         cursorCondition(chatCursorCondition.cursor())
                 )
                 .orderBy(chat.id.desc())

@@ -39,11 +39,11 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.GET, "/api/chat-rooms", "/api/auth/me").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/auth/refresh",
                                 "/api/auth/sign-in",
                                 "/api/auth/sign-up").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/ws/**").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(customAuthenticationEntryPoint) // 401 에러는 얘가 처리해!

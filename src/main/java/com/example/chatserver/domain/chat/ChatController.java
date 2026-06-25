@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/chat-rooms")
+@RequestMapping("/api/rooms")
 public class ChatController {
     private final ChatService chatService;
 
-    @GetMapping("/{chatRoomId}/chats")
+    @GetMapping("/{roomId}/chats")
     public ResponseEntity<ChatCursorResponse> getChats(
-            @PathVariable Long chatRoomId,
+            @PathVariable Long roomId,
             @ModelAttribute ChatCursorCondition chatCursorCondition
     ) {
-        ChatCursorResponse chatCursorResponse = chatService.getChats(chatRoomId, chatCursorCondition);
+        ChatCursorResponse chatCursorResponse = chatService.getChats(roomId, chatCursorCondition);
         return ResponseEntity.ok().body(chatCursorResponse);
     }
 }

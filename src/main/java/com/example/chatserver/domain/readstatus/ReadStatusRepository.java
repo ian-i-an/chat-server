@@ -11,14 +11,12 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, Long> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE ReadStatus r " +
             "SET r.lastReadChatId = :chatId " +
-            "WHERE r.chatRoom.id = :chatRoomId " +
+            "WHERE r.room.id = :roomId " +
             "AND r.user.id = :userId " +
             "AND (r.lastReadChatId IS NULL OR r.lastReadChatId < :chatId)")
     int updateLastReadChatIdIfGreater(
-            @Param("chatRoomId") Long chatRoomId,
+            @Param("roomId") Long roomId,
             @Param("userId") Long userId,
             @Param("chatId") Long chatId
     );
-
-    Optional<ReadStatus> findByChatRoomIdAndUserId(Long chatRoomId, Long userId);
 }

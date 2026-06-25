@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ChatCustomRepository {
 
-    List<Chat> getChatsByCursor(Long chatRoomId, ChatCursorCondition chatCursorCondition);
+    List<Chat> getChatsByCursor(Long roomId, ChatCursorCondition chatCursorCondition);
 }

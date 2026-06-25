@@ -8,12 +8,15 @@ import com.example.chatserver.domain.user.dto.UserDto;
 import com.example.chatserver.domain.user.dto.request.UserCreateRequest;
 import com.example.chatserver.global.security.JwtProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import static com.example.chatserver.domain.auth.CookieCreateHelper.createTokenCookie;
 
 
 @RestController
@@ -23,14 +26,16 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtProperties jwtProperties;
+    @Value("${app.cookie.secure}")
+    private  boolean secure;
 
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(@CookieValue(name = "refresh_token") String refreshToken) {
         TokenDto tokens = authService.refreshToken(refreshToken);
 
-        ResponseCookie accessTokenCookie = createTokenCookie("access_token", tokens.accessToken(), jwtProperties.getAccessTokenExpiration());
+        ResponseCookie accessTokenCookie = createTokenCookie("access_token", tokens.accessToken(),secure, jwtProperties.getAccessTokenExpiration());
 
-        ResponseCookie refreshTokenCookie = createTokenCookie("refresh_token", tokens.refreshToken(), jwtProperties.getRefreshTokenExpiration());
+        ResponseCookie refreshTokenCookie = createTokenCookie("refresh_token", tokens.refreshToken(),secure, jwtProperties.getRefreshTokenExpiration());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
@@ -84,16 +89,7 @@ public class AuthController {
                 .build();
     }
 
-    public static ResponseCookie createTokenCookie(String tokenType, String token, long tokenExpiration) {
-        return ResponseCookie.from(tokenType, token)
-                .httpOnly(true)
-                //https일 때만 요청에 담아서 보내라! -> 지금은 개발이니까 false
-                .secure(false)
-                .path("/")
-                .maxAge(tokenExpiration / 1000)
-                .sameSite("Lax")
-                .build();
-    }
+
 
     @GetMapping("/me")
     public ResponseEntity<UserDto> getMyProfile(@AuthenticationPrincipal Long userId) {

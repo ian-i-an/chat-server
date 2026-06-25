@@ -14,12 +14,12 @@ public class ReadStatusService {
     private final ChatRepository chatRepository;
 
     @Transactional
-    public void updateLastReadChatId(Long chatRoomId, Long userId, Long lastReadChatId) {
-        boolean isChatInRoom = chatRepository.existsByIdAndChatRoomId(lastReadChatId, chatRoomId);
+    public void updateLastReadChatId(Long roomId, Long userId, Long lastReadChatId) {
+        boolean isChatInRoom = chatRepository.existsByIdAndRoomId(lastReadChatId, roomId);
 
         if (!isChatInRoom) {
             throw new IllegalArgumentException("채팅이 존재하지 않습니다.");
         }
-        readStatusRepository.updateLastReadChatIdIfGreater(chatRoomId, userId, lastReadChatId);
+        readStatusRepository.updateLastReadChatIdIfGreater(roomId, userId, lastReadChatId);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.chatserver.domain.chatroom;
+package com.example.chatserver.domain.room;
 
 
 import com.example.chatserver.domain.base.AuditingEntity;
@@ -14,9 +14,9 @@ import static java.util.Objects.requireNonNull;
 
 @Getter
 @Entity
-@Table(name = "chat_room")
+@Table(name = "room")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatRoom extends AuditingEntity {
+public class Room extends AuditingEntity {
 
     @Column(nullable = false)
     private String name;
@@ -26,18 +26,18 @@ public class ChatRoom extends AuditingEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User owner;
 
-    private ChatRoom(String name, User owner) {
+    private Room(String name, User owner) {
         validateName(name);
 
         this.name = name;
         this.owner = requireNonNull(owner, "방장은 필수입니다.");
     }
 
-    public static ChatRoom create(String name, User owner) {
-        return new ChatRoom(name, owner);
+    public static Room create(String name, User owner) {
+        return new Room(name, owner);
     }
 
-    public static void validateName(String chatRoomName) {
+    private static void validateName(String chatRoomName) {
         if(chatRoomName == null || chatRoomName.isEmpty()) {
             throw new IllegalArgumentException();
         }

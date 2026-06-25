@@ -19,9 +19,9 @@ public class ChatSocketController {
     private final ReadStatusService readStatusService;
 
 
-    @MessageMapping("/chat-rooms/{chatRoomId}/chats")
+    @MessageMapping("/rooms/{roomId}/chats")
     public void sendChat(
-            @DestinationVariable Long chatRoomId,
+            @DestinationVariable Long roomId,
             @Payload ChatSendRequest chatSendRequest,
             Principal principal) {
         Long userId = null;
@@ -29,12 +29,12 @@ public class ChatSocketController {
         if (principal != null) {
             userId = (Long) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
         }
-        chatService.sendChat(chatRoomId, chatSendRequest, userId);
+        chatService.sendChat(roomId, chatSendRequest, userId);
     }
 
-    @MessageMapping("/chat-rooms/{chatRoomId}/read")
+    @MessageMapping("/rooms/{roomId}/read")
     public void updateReadStatus(
-            @DestinationVariable Long chatRoomId,
+            @DestinationVariable Long roomId,
             @Payload ReadRequest readRequest,
             Principal principal
     ) {
@@ -45,7 +45,7 @@ public class ChatSocketController {
         }
 
         readStatusService.updateLastReadChatId(
-                chatRoomId,
+                roomId,
                 userId,
                 readRequest.lastReadChatId()
         );
