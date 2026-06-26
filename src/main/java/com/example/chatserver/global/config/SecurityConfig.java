@@ -16,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@Profile("dev")
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -47,7 +47,8 @@ public class SecurityConfig {
                                 "/api/auth/check-id",
                                 "/api/auth/sign-out").permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                "/api/rooms/*/chats").permitAll()
+                                "/api/rooms/*/chats",
+                        "/api/rooms/*").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
