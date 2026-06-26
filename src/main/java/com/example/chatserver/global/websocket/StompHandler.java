@@ -1,6 +1,8 @@
 package com.example.chatserver.global.websocket;
 
 import com.example.chatserver.global.security.JwtProvider;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.messaging.Message;
@@ -11,6 +13,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Map;
 
 @Component
@@ -32,15 +35,17 @@ public class StompHandler implements ChannelInterceptor {
 
             if (token != null) {
                 try {
-                    Long userId = jwtProvider.getUserIdFromToken(token);
+                    Claims claims = jwtProvider.parseClaims(token);
+                    Long userId = Long.parseLong(claims.getSubject());
+                    if ("access_token".equals(claims.get("type"))) {
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
 
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userId, null, null);
-                    accessor.setUser(authentication);
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("TOKEN_EXPIRED");
+                        accessor.setUser(authentication);
+                    }
+                } catch (JwtException | IllegalArgumentException e) {
+                    // 무효 토큰 → 익명 처리
                 }
-
             }
         }
         return message;
