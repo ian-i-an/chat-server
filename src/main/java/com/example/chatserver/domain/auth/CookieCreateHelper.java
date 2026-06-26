@@ -7,16 +7,25 @@ public final class CookieCreateHelper {
         throw new AssertionError("이 클래스는 인스턴스화할 수 없습니다.");
     }
 
-    public static ResponseCookie createTokenCookie(String tokenType, String token, boolean secure, long tokenExpiration) {
-//        .path("/api/auth/refresh")   // 다른 요청엔 아예 안 실림 → 노출면 축소
-//                .sameSite("Strict")
-        // todo: refresh토큰에는 더 제한 걸기
-        return ResponseCookie.from(tokenType, token)
+    public static ResponseCookie createAccessTokenCookie(String token, boolean secure, long tokenExpiration) {
+
+        return ResponseCookie.from("access_token", token)
                 .httpOnly(true)
                 .secure(secure)
                 .path("/")
                 .maxAge(tokenExpiration / 1000)
-                .sameSite("Lax")
+                .sameSite("Strict")
+                .build();
+    }
+
+
+    public static ResponseCookie createRefreshTokenCookie(String token, boolean secure, long tokenExpiration) {
+        return ResponseCookie.from("refresh_token", token)
+                .httpOnly(true)
+                .secure(secure)
+                .path("/api/auth/refresh")
+                .maxAge(tokenExpiration / 1000)
+                .sameSite("Strict")
                 .build();
     }
 }

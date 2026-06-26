@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import static com.example.chatserver.domain.auth.CookieCreateHelper.createTokenCookie;
+import static com.example.chatserver.domain.auth.CookieCreateHelper.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,8 +26,8 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal Long userId) {
         userService.deleteUserById(userId);
 
-        ResponseCookie deleteAccessToken = createTokenCookie("access_token","",secure,0);
-        ResponseCookie deleteRefreshToken = createTokenCookie("refresh_token","",secure,0);
+        ResponseCookie deleteAccessToken = createAccessTokenCookie("",secure,0);
+        ResponseCookie deleteRefreshToken = createRefreshTokenCookie("",secure,0);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .header(HttpHeaders.SET_COOKIE, deleteAccessToken.toString())
