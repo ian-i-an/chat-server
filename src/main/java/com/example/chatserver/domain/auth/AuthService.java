@@ -7,8 +7,13 @@ import com.example.chatserver.domain.user.User;
 import com.example.chatserver.domain.user.UserRepository;
 import com.example.chatserver.domain.user.dto.UserDto;
 import com.example.chatserver.domain.user.dto.request.UserCreateRequest;
+import com.example.chatserver.global.exception.BusinessException;
+import com.example.chatserver.global.exception.ErrorCode;
 import com.example.chatserver.global.security.JwtProvider;
 import com.example.chatserver.global.utils.NicknameGenerator;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,8 +29,24 @@ public class AuthService {
     private final JwtProvider jwtProvider;
 
     public TokenDto refreshToken(String refreshToken) {
-        Long userId = jwtProvider.getUserIdFromToken(refreshToken);
-//        todo: JwtException → 500 에러 처리
+        if(refreshToken == null || refreshToken.isEmpty()) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+        }
+
+        Claims claims;
+        try {
+            claims = jwtProvider.parseClaims(refreshToken);
+        } catch (ExpiredJwtException e) {
+            throw new BusinessException(ErrorCode.EXPIRED_TOKEN);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+        }
+
+        if (!"refresh_token".equals(claims.get("type"))) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+        }
+
+        Long userId = Long.parseLong(claims.getSubject());
 
         String accessToken = jwtProvider.createAccessToken(userId);
         String newRefreshToken = jwtProvider.createRefreshToken(userId);
@@ -56,10 +77,10 @@ public class AuthService {
 
     public LoginDto signIn(LoginRequest request) {
         User user = userRepository.findByLoginId(request.loginId())
-                .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 잘못되었습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            throw new IllegalArgumentException("아이디 또는 비밀번호가 잘못되었습니다.");
+            throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
         }
 
         String accessToken = jwtProvider.createAccessToken(user.getId());

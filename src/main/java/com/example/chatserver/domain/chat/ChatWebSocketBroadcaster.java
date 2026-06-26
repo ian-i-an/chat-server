@@ -17,7 +17,7 @@ public class ChatWebSocketBroadcaster {
     @Async("ChatSendTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendChat(ChatCreatedEvent event) {
-        String destination = "/sub/rooms/" + event.chatRoomId();
+        String destination = "/sub/rooms/" + event.roomId();
         messagingTemplate.convertAndSend(destination, event.chatDto());
     }
 

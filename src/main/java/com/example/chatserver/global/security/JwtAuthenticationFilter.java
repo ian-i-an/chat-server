@@ -1,5 +1,7 @@
 package com.example.chatserver.global.security;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -14,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 
+// "유효한 토큰이 있으면 → 신원(userId)을 SecurityContext에 등록한다. 없거나 이상하면 → 아무것도 안 하고 익명 상태로 통과시킨다."
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -39,15 +42,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
 
-        if (accessToken != null && jwtProvider.validateToken(accessToken)) {
-            Long userId = jwtProvider.getUserIdFromToken(accessToken);
+        if (accessToken != null) {
 
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+            try {
+                Claims claims = jwtProvider.parseClaims(accessToken);
+                Long userId = Long.parseLong(claims.getSubject());
+                if ("access_token".equals(claims.get("type"))) {
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            } catch (JwtException | IllegalArgumentException e) {
+                // 무효 토큰 → 익명 처리
+            }
         }
-
         filterChain.doFilter(request, response);
     }
 }

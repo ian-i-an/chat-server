@@ -30,9 +30,9 @@ public class ChatService {
 
     @Transactional
     public void sendChat(Long chatRoomId, ChatSendRequest chatSendRequest, Long userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException("userId is null");
-        }
+//        if (userId == null) {
+//            throw new IllegalArgumentException("userId is null");
+//        }
         Room room = roomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채팅방입니다."));
 

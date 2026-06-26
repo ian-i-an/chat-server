@@ -31,11 +31,11 @@ public class JwtProvider {
         return Jwts.builder()
                 .subject(String.valueOf(userId))          // 토큰의 주인 (sub)
                 .issuedAt(now)                           // 발행 시간 (iat)
-                .expiration(expiryDate)                  // 만료 시간 (exp)
+                .expiration(expiryDate)                   // 만료 시간 (exp)
+                .claim("type", "access_token")
                 .signWith(secretKey)                     // 우리만의 비밀키로 서명(암호화) 쿵!
                 .compact();
     }
-
 
     public String createRefreshToken(Long userId) {
         Date now = new Date();
@@ -45,28 +45,29 @@ public class JwtProvider {
                 .subject(String.valueOf(userId))
                 .issuedAt(now)
                 .expiration(expiryDate)
+                .claim("type", "refresh_token")
                 .signWith(secretKey)
                 .compact();
     }
 
 
-    public boolean validateToken(String token) {
-        try {
-            parseClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
-    }
+//    public boolean validateToken(String token) {
+//        try {
+//            parseClaims(token);
+//            return true;
+//        } catch (JwtException | IllegalArgumentException e) {
+//            return false;
+//        }
+//    }
 
 
-    public Long getUserIdFromToken(String token) {
-        Claims claims = parseClaims(token);
+//    public Long getUserIdFromToken(String token) {
+//        Claims claims = parseClaims(token);
+//
+//        return Long.parseLong(claims.getSubject());
+//    }
 
-        return Long.parseLong(claims.getSubject());
-    }
-
-    private Claims parseClaims(String token) {
+    public Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
                 .build()

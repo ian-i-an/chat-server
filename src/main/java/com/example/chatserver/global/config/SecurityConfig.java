@@ -39,9 +39,15 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh",
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/auth/refresh",
                                 "/api/auth/sign-in",
-                                "/api/auth/sign-up").permitAll()
+                                "/api/auth/sign-up",
+                                "/api/auth/check-id",
+                                "/api/auth/sign-out").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/rooms/*/chats").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )

@@ -27,15 +27,20 @@ public class AuthController {
     private final AuthService authService;
     private final JwtProperties jwtProperties;
     @Value("${app.cookie.secure}")
-    private  boolean secure;
+    private boolean secure;
 
     @PostMapping("/refresh")
-    public ResponseEntity<Void> refresh(@CookieValue(name = "refresh_token") String refreshToken) {
+    public ResponseEntity<Void> refresh(@CookieValue(name = "refresh_token", required = false) String refreshToken) {
         TokenDto tokens = authService.refreshToken(refreshToken);
 
-        ResponseCookie accessTokenCookie = createTokenCookie("access_token", tokens.accessToken(),secure, jwtProperties.getAccessTokenExpiration());
-
-        ResponseCookie refreshTokenCookie = createTokenCookie("refresh_token", tokens.refreshToken(),secure, jwtProperties.getRefreshTokenExpiration());
+        ResponseCookie accessTokenCookie = createTokenCookie("access_token",
+                tokens.accessToken(),
+                secure,
+                jwtProperties.getAccessTokenExpiration());
+        ResponseCookie refreshTokenCookie = createTokenCookie("refresh_token",
+                tokens.refreshToken(),
+                secure,
+                jwtProperties.getRefreshTokenExpiration());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
@@ -46,7 +51,6 @@ public class AuthController {
 
     @PostMapping("/check-id")
     public ResponseEntity<Void> checkIdDuplication(@RequestBody IdCheckRequest request) {
-
         authService.checkDuplicationId(request.loginId());
 
         return ResponseEntity.noContent().build();
@@ -65,10 +69,12 @@ public class AuthController {
 
         ResponseCookie accessTokenCookie = createTokenCookie("access_token",
                 loginDto.accessToken(),
+                secure,
                 jwtProperties.getAccessTokenExpiration());
 
         ResponseCookie refreshTokenCookie = createTokenCookie("refresh_token",
                 loginDto.refreshToken(),
+                secure,
                 jwtProperties.getRefreshTokenExpiration());
 
         return ResponseEntity.ok()
@@ -80,15 +86,14 @@ public class AuthController {
     @PostMapping("/sign-out")
     public ResponseEntity<Void> logout() {
 
-        ResponseCookie deleteAccessToken = createTokenCookie("access_token","",0);
-        ResponseCookie deleteRefreshToken = createTokenCookie("refresh_token","",0);
+        ResponseCookie deleteAccessToken = createTokenCookie("access_token", "", secure, 0);
+        ResponseCookie deleteRefreshToken = createTokenCookie("refresh_token", "", secure, 0);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, deleteAccessToken.toString())
                 .header(HttpHeaders.SET_COOKIE, deleteRefreshToken.toString())
                 .build();
     }
-
 
 
     @GetMapping("/me")

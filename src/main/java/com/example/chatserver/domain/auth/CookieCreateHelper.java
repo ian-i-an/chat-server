@@ -8,9 +8,11 @@ public final class CookieCreateHelper {
     }
 
     public static ResponseCookie createTokenCookie(String tokenType, String token, boolean secure, long tokenExpiration) {
+//        .path("/api/auth/refresh")   // 다른 요청엔 아예 안 실림 → 노출면 축소
+//                .sameSite("Strict")
+        // todo: refresh토큰에는 더 제한 걸기
         return ResponseCookie.from(tokenType, token)
                 .httpOnly(true)
-                //https일 때만 요청에 담아서 보내라! -> 지금은 개발이니까 false
                 .secure(secure)
                 .path("/")
                 .maxAge(tokenExpiration / 1000)
