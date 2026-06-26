@@ -17,7 +17,7 @@ public class ChatWebSocketBroadcaster {
     @Async("ChatSendTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendChat(ChatCreatedEvent event) {
-        String destination = "/sub/rooms/" + event.roomId();
+        String destination = "/sub/rooms/" + event.roomCode();
         messagingTemplate.convertAndSend(destination, event.chatDto());
     }
 
@@ -25,11 +25,11 @@ public class ChatWebSocketBroadcaster {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void updateChatRoomList(ChatRoomUpdatedEvent event) {
         String destination = "/sub/users/" + event.userId() + "/rooms";
-        messagingTemplate.convertAndSend(destination, new RoomUpdateEvent(event.chatRoomId(), event.lastMessage(), event.isMyMessage()));
+        messagingTemplate.convertAndSend(destination, new RoomUpdateEvent(event.roomCode(), event.lastMessage(), event.isMyMessage()));
     }
 
     record RoomUpdateEvent(
-            Long id,
+            String roomCode,
             String lastMessage,
             boolean isMyMessage
     ){}

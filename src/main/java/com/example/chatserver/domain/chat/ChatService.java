@@ -10,6 +10,8 @@ import com.example.chatserver.domain.chat.repository.ChatRepository;
 import com.example.chatserver.domain.room.Room;
 import com.example.chatserver.domain.room.repository.RoomRepository;
 import com.example.chatserver.domain.readstatus.ReadStatusService;
+import com.example.chatserver.global.exception.BusinessException;
+import com.example.chatserver.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -29,12 +31,9 @@ public class ChatService {
 
 
     @Transactional
-    public void sendChat(Long chatRoomId, ChatSendRequest chatSendRequest, Long userId) {
-//        if (userId == null) {
-//            throw new IllegalArgumentException("userId is null");
-//        }
-        Room room = roomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 채팅방입니다."));
+    public void sendChat(String roomCode, ChatSendRequest chatSendRequest, Long userId) {
+        Room room = roomRepository.findByCode(roomCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
         Long isOwnerId = room.getOwner().getId();
         boolean isOwner = isOwnerId.equals(userId);
@@ -42,18 +41,20 @@ public class ChatService {
         Chat save = chatRepository.save(chat);
 
         if (isOwner) {
-            readStatusService.updateLastReadChatId(chatRoomId, userId, save.getId());
+            readStatusService.updateLastReadChatId(roomCode, userId, save.getId());
         }
 
         ChatDto chatDto = new ChatDto(chat.getId(), chat.getContent(), chat.getCreatedAt(), chat.isOwnerChat());
 
-        applicationEventPublisher.publishEvent(new ChatCreatedEvent(chatDto, chatRoomId));
-        applicationEventPublisher.publishEvent(new ChatRoomUpdatedEvent(isOwnerId, chatRoomId, chat.getContent(), isOwner));
+        applicationEventPublisher.publishEvent(new ChatCreatedEvent(chatDto, roomCode));
+        applicationEventPublisher.publishEvent(new ChatRoomUpdatedEvent(isOwnerId, roomCode, chat.getContent(), isOwner));
 
     }
 
-    public ChatCursorResponse getChats(Long chatRoomId, ChatCursorCondition chatCursorCondition) {
-        List<Chat> chats = chatRepository.getChatsByCursor(chatRoomId, chatCursorCondition);
+    public ChatCursorResponse getChats(String roomCode, ChatCursorCondition chatCursorCondition) {
+        Room room = roomRepository.findByCode(roomCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+        List<Chat> chats = chatRepository.getChatsByCursor(room.getId(), chatCursorCondition);
 
         boolean hasNext = false;
         if (chats.size() == chatCursorCondition.limit() + 1) {

@@ -30,7 +30,7 @@ public class AuthService {
 
     public TokenDto refreshToken(String refreshToken) {
         if(refreshToken == null || refreshToken.isEmpty()) {
-            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+            throw new BusinessException(ErrorCode.LOGIN_REQUIRED );
         }
 
         Claims claims;
@@ -57,7 +57,7 @@ public class AuthService {
         boolean duplicated = userRepository.existsByLoginId(loginId);
 
         if (duplicated) {
-            throw new IllegalArgumentException("사용할 수 없는 아이디입니다.");
+            throw new BusinessException(ErrorCode.DUPLICATE_ID);
         }
     }
 
@@ -65,7 +65,7 @@ public class AuthService {
     public void signUp(UserCreateRequest request) {
         boolean duplicated = userRepository.existsByLoginId(request.loginId());
         if (duplicated) {
-            throw new IllegalArgumentException("사용할 수 없는 아이디입니다.");
+            throw new BusinessException(ErrorCode.DUPLICATE_ID);
         }
 
         String randomNickname = NicknameGenerator.generate();
@@ -91,7 +91,7 @@ public class AuthService {
 
     public UserDto getMyProfile(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         return new UserDto(user.getId(), user.getNickname());
     }

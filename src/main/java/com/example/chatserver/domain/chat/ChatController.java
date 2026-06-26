@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.*;
 public class ChatController {
     private final ChatService chatService;
 
-    @GetMapping("/{roomId}/chats")
+    @GetMapping("/{roomCode}/chats")
     public ResponseEntity<ChatCursorResponse> getChats(
-            @PathVariable Long roomId,
+            @PathVariable String roomCode,
             @ModelAttribute ChatCursorCondition chatCursorCondition
     ) {
-        ChatCursorResponse chatCursorResponse = chatService.getChats(roomId, chatCursorCondition);
+        ChatCursorResponse chatCursorResponse = chatService.getChats(roomCode, chatCursorCondition);
         return ResponseEntity.ok().body(chatCursorResponse);
     }
 }

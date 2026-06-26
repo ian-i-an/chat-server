@@ -1,5 +1,6 @@
 package com.example.chatserver.global.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -38,6 +40,7 @@ public class GlobalExceptionHandler {
     // 그 외 예상 못한 예외
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
+        log.error(e.getMessage(), e);
         ErrorCode code = ErrorCode.INTERNAL_SERVER_ERROR;
         return ResponseEntity
                 .status(code.getHttpStatus())

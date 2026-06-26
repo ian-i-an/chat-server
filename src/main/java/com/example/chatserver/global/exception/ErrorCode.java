@@ -9,9 +9,10 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     //Auth
-    DUPLICATE_LOGIN_ID(HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다."),
+    DUPLICATE_ID(HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 잘못되었습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "로그인 후에 이용해주세요."),
+    LOGIN_REQUIRED (HttpStatus.UNAUTHORIZED, "로그인 후에 이용해주세요."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "로그인이 만료되었습니다."),
 
     //User

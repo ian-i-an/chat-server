@@ -9,6 +9,8 @@ import com.example.chatserver.domain.readstatus.ReadStatus;
 import com.example.chatserver.domain.readstatus.ReadStatusRepository;
 import com.example.chatserver.domain.user.User;
 import com.example.chatserver.domain.user.UserRepository;
+import com.example.chatserver.global.exception.BusinessException;
+import com.example.chatserver.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,25 +30,30 @@ public class RoomService {
     public void createRoom(RoomCreateRequest roomCreateRequest, Long userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        Room room = Room.create(roomCreateRequest.roomName(), user);
+        String code;
+        do {
+            code = RoomCodeGenerator.generateRoomCode();
+        } while (roomRepository.existsByCode(code));
+
+        Room room = Room.create(roomCreateRequest.roomName(), user, code);
         roomRepository.save(room);
         readStatusRepository.save(ReadStatus.create(user, room));
     }
 
     public List<RoomListItem> getRoomsByUserId(Long userId) {
         if(!userRepository.existsById(userId)){
-            throw new IllegalArgumentException("유저가 존재하지 않습니다.");
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
         };
         return roomQueryRepository.getRoomsByUserId(userId);
     }
 
-    public RoomDto getRoomById(Long roomId, Long userId) {
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("채팅방이 존재하지 않습니다."));
+    public RoomDto getRoomByCode(String roomCode, Long userId) {
+        Room room = roomRepository.findByCode(roomCode)
+                .orElseThrow(() ->  new BusinessException(ErrorCode.ROOM_NOT_FOUND));
 
         boolean isMyRoom = room.getOwner().getId().equals(userId);
-        return new RoomDto(room.getId(), room.getName(), isMyRoom);
+        return new RoomDto(room.getCode(), room.getName(), isMyRoom);
     }
 }

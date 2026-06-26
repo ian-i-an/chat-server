@@ -1,7 +1,7 @@
 package com.example.chatserver.domain.room.dto;
 
 public record RoomDto(
-        Long id,
+       String roomCode,
         String name,
         Boolean isMyRoom
 ) {

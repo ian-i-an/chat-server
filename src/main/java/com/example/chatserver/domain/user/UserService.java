@@ -2,6 +2,8 @@ package com.example.chatserver.domain.user;
 
 import com.example.chatserver.domain.user.dto.UserDto;
 import com.example.chatserver.domain.user.dto.request.UserUpdateRequest;
+import com.example.chatserver.global.exception.BusinessException;
+import com.example.chatserver.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +22,8 @@ public class UserService {
 
     @Transactional
     public UserDto updateUser(Long userId, UserUpdateRequest userUpdateRequest){
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->  new BusinessException(ErrorCode.USER_NOT_FOUND));
         user.changeNickname(userUpdateRequest.newNickname());
         return new UserDto(user.getId(), user.getNickname());
     }

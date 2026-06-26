@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import static com.example.chatserver.domain.room.RoomCodeGenerator.*;
 import static java.util.Objects.requireNonNull;
 
 @Getter
@@ -21,20 +22,24 @@ public class Room extends AuditingEntity {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false, unique = true, updatable = false)
+    private String code;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User owner;
 
-    private Room(String name, User owner) {
+
+    public static Room create(String name, User owner, String code) {
+        Room room = new Room();
         validateName(name);
 
-        this.name = name;
-        this.owner = requireNonNull(owner, "방장은 필수입니다.");
-    }
+        room.name = name;
+        room.owner = requireNonNull(owner, "방장은 필수입니다.");
+        room.code = code;
 
-    public static Room create(String name, User owner) {
-        return new Room(name, owner);
+        return room;
     }
 
     private static void validateName(String chatRoomName) {

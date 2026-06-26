@@ -32,12 +32,12 @@ public class RoomController {
         return ResponseEntity.ok(chatRoomList);
     }
 
-    @GetMapping("/{roomId}")
+    @GetMapping("/{roomCode}")
     public ResponseEntity<RoomDto> getRoom(
-            @PathVariable Long roomId,
+            @PathVariable String roomCode,
             @AuthenticationPrincipal Long userId
           ) {
-        RoomDto roomDto = roomService.getRoomById(roomId, userId);
+        RoomDto roomDto = roomService.getRoomByCode(roomCode, userId);
         return ResponseEntity.ok(roomDto);
     }
 }

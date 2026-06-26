@@ -54,7 +54,7 @@ public class RoomQueryRepository {
 
         return queryFactory
                 .select(Projections.constructor(RoomListItem.class,
-                        room.id,
+                        room.code,
                         room.name,
                         lastMessageQuery,
                         unreadCountQuery

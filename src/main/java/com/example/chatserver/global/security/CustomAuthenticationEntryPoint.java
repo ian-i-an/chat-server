@@ -23,9 +23,9 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response, 
                          AuthenticationException authException) throws IOException {
 
-        ErrorCode errorCode = ErrorCode.INVALID_TOKEN;
+        ErrorCode errorCode = ErrorCode.LOGIN_REQUIRED ;
 
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
