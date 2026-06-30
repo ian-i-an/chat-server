@@ -20,12 +20,14 @@ public enum ErrorCode {
 
     // Room
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅방입니다."),
-    INVALID_ROOM_NAME(HttpStatus.BAD_REQUEST, "채팅방 이름이 유효하지 않습니다."),
+    REQUIRED_AUTH(HttpStatus.UNAUTHORIZED, "해당 채팅방에 대한 권한이 없습니다."),
+//    INVALID_ROOM_NAME(HttpStatus.BAD_REQUEST, "채팅방 이름이 유효하지 않습니다."),
 
     // Chat
     CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 채팅입니다."),
     CHAT_NOT_IN_ROOM(HttpStatus.BAD_REQUEST, "해당 채팅방에 속하지 않는 채팅입니다."),
-    EMPTY_CHAT_CONTENT(HttpStatus.BAD_REQUEST, "메시지 내용은 비어있을 수 없습니다."),
+
+//    EMPTY_CHAT_CONTENT(HttpStatus.BAD_REQUEST, "메시지 내용은 비어있을 수 없습니다."),
 
     // Common
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),

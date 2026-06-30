@@ -20,9 +20,12 @@ public class ChatCustomRepositoryImpl implements ChatCustomRepository {
 
     @Override
     public List<Chat> getChatsByCursor(Long chatRoomId, ChatCursorCondition chatCursorCondition) {
+        QChat replyToChat = new QChat("replyToChat");
+
         return queryFactory
                 .select(chat)
                 .from(chat)
+                .leftJoin(chat.replyTo, replyToChat).fetchJoin()
                 .where(
                         chat.room.id.eq(chatRoomId),
                         cursorCondition(chatCursorCondition.cursor())

@@ -1,15 +1,12 @@
 package com.example.chatserver.domain.chat;
 
-import com.example.chatserver.domain.chat.dto.ChatCreatedEvent;
-import com.example.chatserver.domain.chat.dto.ChatCursorResponse;
-import com.example.chatserver.domain.chat.dto.ChatDto;
-import com.example.chatserver.domain.chat.dto.ChatRoomUpdatedEvent;
+import com.example.chatserver.domain.chat.dto.*;
 import com.example.chatserver.domain.chat.dto.request.ChatCursorCondition;
 import com.example.chatserver.domain.chat.dto.request.ChatSendRequest;
 import com.example.chatserver.domain.chat.repository.ChatRepository;
+import com.example.chatserver.domain.readstatus.ReadStatusService;
 import com.example.chatserver.domain.room.Room;
 import com.example.chatserver.domain.room.repository.RoomRepository;
-import com.example.chatserver.domain.readstatus.ReadStatusService;
 import com.example.chatserver.global.exception.BusinessException;
 import com.example.chatserver.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -37,14 +34,24 @@ public class ChatService {
 
         Long isOwnerId = room.getOwner().getId();
         boolean isOwner = isOwnerId.equals(userId);
-        Chat chat = Chat.create(chatSendRequest.content(), room, isOwner);
+
+        Chat replyTo = null;
+        if (chatSendRequest.replyToId() != null) {
+            replyTo = chatRepository.findById(chatSendRequest.replyToId())
+                    .orElseThrow(() -> new BusinessException(ErrorCode.CHAT_NOT_FOUND));
+            if (!replyTo.getRoom().getId().equals(room.getId())) {
+                throw new BusinessException(ErrorCode.CHAT_NOT_IN_ROOM);
+            }
+        }
+
+        Chat chat = Chat.create(chatSendRequest.content(), room, isOwner, replyTo);
         Chat save = chatRepository.save(chat);
 
         if (isOwner) {
             readStatusService.updateLastReadChatId(roomCode, userId, save.getId());
         }
 
-        ChatDto chatDto = new ChatDto(chat.getId(), chat.getContent(), chat.getCreatedAt(), chat.isOwnerChat());
+        ChatDto chatDto = ChatDto.from(chat);
 
         applicationEventPublisher.publishEvent(new ChatCreatedEvent(chatDto, roomCode));
         applicationEventPublisher.publishEvent(new ChatRoomUpdatedEvent(isOwnerId, roomCode, chat.getContent(), isOwner));
@@ -62,9 +69,26 @@ public class ChatService {
             hasNext = true;
         }
 
-        List<ChatDto> chatDtos = chats.stream().map(chat -> new ChatDto(chat.getId(), chat.getContent(), chat.getCreatedAt(), chat.isOwnerChat()))
+        List<ChatDto> chatDtos = chats.stream().map(ChatDto::from)
                 .toList();
 
         return new ChatCursorResponse(chatDtos, hasNext);
+    }
+
+    @Transactional
+    public void deleteChat(String roomCode, Long chatId, Long userId) {
+        Room room = roomRepository.findByCode(roomCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.ROOM_NOT_FOUND));
+
+        if(!room.getOwner().getId().equals(userId)) {
+            throw new BusinessException(ErrorCode.REQUIRED_AUTH);
+        }
+
+        Chat chat = chatRepository.findByIdAndRoomId(chatId, room.getId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHAT_NOT_FOUND));
+
+        chat.delete();
+
+        applicationEventPublisher.publishEvent(new ChatDeletedEvent(ChatDto.from(chat), roomCode));
     }
 }

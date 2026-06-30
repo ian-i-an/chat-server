@@ -1,6 +1,8 @@
 package com.example.chatserver.domain.chat;
 
 import com.example.chatserver.domain.chat.dto.ChatCreatedEvent;
+import com.example.chatserver.domain.chat.dto.ChatDeletedEvent;
+import com.example.chatserver.domain.chat.dto.ChatEventPayload;
 import com.example.chatserver.domain.chat.dto.ChatRoomUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -18,7 +20,15 @@ public class ChatWebSocketBroadcaster {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendChat(ChatCreatedEvent event) {
         String destination = "/sub/rooms/" + event.roomCode();
-        messagingTemplate.convertAndSend(destination, event.chatDto());
+        messagingTemplate.convertAndSend(destination,
+                ChatEventPayload.created(event.chatDto()));
+    }
+
+    @Async("ChatSendTaskExecutor")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void deleteChat(ChatDeletedEvent event) {
+        String destination = "/sub/rooms/" + event.roomCode();
+        messagingTemplate.convertAndSend(destination,ChatEventPayload.deleted(event.chatDto()));
     }
 
     @Async("ChatSendTaskExecutor")
