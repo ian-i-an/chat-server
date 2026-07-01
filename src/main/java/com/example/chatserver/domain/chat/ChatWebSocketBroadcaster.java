@@ -34,8 +34,10 @@ public class ChatWebSocketBroadcaster {
     @Async("ChatSendTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void updateChatRoomList(ChatRoomUpdatedEvent event) {
-        String destination = "/sub/users/" + event.userId() + "/rooms";
-        messagingTemplate.convertAndSend(destination, new RoomUpdateEvent(event.roomCode(), event.lastMessage(), event.isMyMessage()));
+        messagingTemplate.convertAndSendToUser(
+                event.userId().toString(),
+                "/queue/rooms",
+                new RoomUpdateEvent(event.roomCode(), event.lastMessage(), event.isMyMessage()));
     }
 
     record RoomUpdateEvent(

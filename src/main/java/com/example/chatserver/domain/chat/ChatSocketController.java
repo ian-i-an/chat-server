@@ -27,7 +27,7 @@ public class ChatSocketController {
         Long userId = null;
 
         if (principal != null) {
-            userId = (Long) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+            userId = Long.parseLong(principal.getName());
         }
         chatService.sendChat(roomCode, chatSendRequest, userId);
     }
@@ -41,7 +41,7 @@ public class ChatSocketController {
         Long userId = null;
 
         if (principal != null) {
-            userId = (Long) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+           userId = Long.parseLong(principal.getName());
         }
 
         readStatusService.updateLastReadChatId(

@@ -37,7 +37,7 @@ public class StompHandler implements ChannelInterceptor {
                 try {
                     Claims claims = jwtProvider.parseClaims(token);
                     if ("access_token".equals(claims.get("type"))) {
-                        Long userId = Long.parseLong(claims.getSubject());
+                        String userId = claims.getSubject();
                         UsernamePasswordAuthenticationToken authentication =
                                 new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
 
